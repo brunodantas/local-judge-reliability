@@ -22,6 +22,22 @@ _Avoid_: result row, log entry
 One prompt with its fixed pair of candidate responses.
 _Avoid_: question, pair, sample
 
+**Benchmark**:
+The named item set a judgment came from. `13685-29` is the 29-item set released with
+2606.13685; the English core adds MT-Bench, JudgeBench, and RewardBench.
+_Avoid_: dataset, corpus, eval set
+
+**Protocol**:
+The named measurement a judgment belongs to: `flip-rate`, `agreement`, `bias`,
+`consistency`. Upstream's `eval_format` field conflates this with the question shape
+(pairwise or pointwise), which we keep as a separate field.
+_Avoid_: experiment, phase, eval format
+
+**Position order**:
+Which response the judge saw first, `AB` or `BA`. A field on the judgment record, never
+a suffix on the item id.
+_Avoid_: orig/swap, direction, arrangement
+
 **Core**:
 The exact replication of the 2606.19544 protocol on new judges.
 _Avoid_: baseline, main experiment
