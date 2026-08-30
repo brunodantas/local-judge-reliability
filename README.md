@@ -17,7 +17,8 @@ Both papers name parts of this gap as future work or limitations.
 
 ## Status
 
-Spec stage. The founding spec is issue #1; no harness code yet.
+The harness fork (#2) runs against any OpenAI-compatible endpoint and writes
+judgment records. The founding spec is issue #1; the measured pilot is #12.
 
 ## Layout
 

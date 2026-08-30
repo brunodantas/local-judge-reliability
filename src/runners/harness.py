@@ -7,7 +7,14 @@ import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
-from src.evaluators.judges import JudgmentRecord
+from src.evaluators.judges import (
+    NO_VERDICT,
+    JudgeReply,
+    JudgmentRecord,
+    get_client,
+    judge_pairwise,
+    parse_verdict,
+)
 
 
 @dataclass(frozen=True)
@@ -54,4 +61,64 @@ def run(
     The sleep is injected because the inter-call delay is the one behaviour the
     record log cannot show.
     """
-    raise NotImplementedError
+    client = get_client()
+    records: list[JudgmentRecord] = []
+
+    for item in items:
+        for position_order in config.position_orders:
+            first, second = _as_shown(item, position_order)
+            for run_index in range(config.replicates):
+                reply = judge_pairwise(
+                    client,
+                    config.model,
+                    item.question,
+                    first,
+                    second,
+                    temperature=config.temperature,
+                    max_tokens=config.max_tokens,
+                    suppress_reasoning=config.suppress_reasoning,
+                )
+                records.append(
+                    _to_record(config, item, run_index, position_order, reply)
+                )
+                sleep(config.delay_seconds)
+
+    return RunSummary(
+        records=records,
+        total=len(records),
+        unparsed=sum(1 for record in records if record.unparsed),
+    )
+
+
+def _as_shown(item: Item, position_order: str) -> tuple[str, str]:
+    """The pair as the judge sees it, swapped for `BA` so the swap never reaches the
+    record's item id."""
+    if position_order == "BA":
+        return item.response_b, item.response_a
+    return item.response_a, item.response_b
+
+
+def _to_record(
+    config: HarnessConfig,
+    item: Item,
+    run_index: int,
+    position_order: str,
+    reply: JudgeReply,
+) -> JudgmentRecord:
+    """Stamp one reply with the six keys a judgment record is filed under."""
+    verdict = NO_VERDICT if reply.error else parse_verdict(reply.content)
+    return JudgmentRecord(
+        judge=config.model,
+        benchmark=config.benchmark,
+        protocol=config.protocol,
+        item=item.id,
+        run_index=run_index,
+        position_order=position_order,
+        winner=verdict.winner,
+        score=verdict.score,
+        unparsed=verdict.unparsed,
+        content=reply.content,
+        tokens=reply.tokens,
+        latency_ms=reply.latency_ms,
+        error=reply.error,
+    )
