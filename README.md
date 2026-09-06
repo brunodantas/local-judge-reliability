@@ -18,7 +18,10 @@ Both papers name parts of this gap as future work or limitations.
 ## Status
 
 The harness fork (#2) runs against any OpenAI-compatible endpoint and writes
-judgment records. The founding spec is issue #1; the measured pilot is #12.
+judgment records. The flip-rate pilot (#12) has run: Qwen3-8B at Q8_0 flips 12.6%
+of its verdicts at temperature 1, against 13.3% for GPT-4o-mini in 2606.13685, so
+the finding survives being moved onto a quantized local judge. Numbers and cost
+are on that issue. The founding spec is #1; the judge matrix is #6.
 
 ## Layout
 
