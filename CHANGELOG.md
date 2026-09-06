@@ -40,3 +40,7 @@ All notable changes to this project. Format follows
     record. Upstream's bare `OpenAI()` retries twice and hides the first two.
   The prompt template and the verdict parser are byte-identical to upstream,
   checked against the GitHub API at that commit.
+- Flip rate and position bias (`src/metrics/consistency.py`), reimplemented from
+  upstream's definitions rather than imported, because that repo has no LICENSE file.
+- The flip-rate pilot (`src/runners/pilot.py`): three phases over the 29-item set,
+  resumable, one JSONL line per judgment. Results for the anchor are on issue #12.
